@@ -1,5 +1,5 @@
 
-[DEMO](https://cvkittler.github.io/index.html)
+# [DEMO](https://cvkittler.github.io/index.html)
 
 
 # regl_template
@@ -17,5 +17,5 @@ Then, to compile your shaders and start the web server enter the following on th
 You should then be provided a URL to see your running project, most likely `http://localhost:1234`.
 
 [REGL api documentation](http://regl.party/api#context)
-# WebGl-Intro
+
 
