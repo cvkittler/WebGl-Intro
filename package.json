@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "glsl-luma": "^1.0.1",
+    "glsl-noise": "^0.0.0",
+    "parcel": "^2.1.1",
+    "regl": "^2.1.0",
+    "tweakpane": "^3.0.7"
+  },
+  "devDependencies": {
+    "@parcel/transformer-glsl": "^2.1.1"
+  },
+  "scripts": {
+    "start": "npx parcel index.html"
+  }
+}

@@ -1,0 +1,113 @@
+<html lang='en'>
+  <head></head>
+  <body></body>
+  <script type='module'>
+    // Calling the regl module with no arguments creates a full screen canvas and
+    // WebGL context, and then uses this context to initialize a new REGL instance
+    
+    import createRegl from 'regl'
+    import frag from './frag.glsl'
+    import vert from './vert.glsl'
+    import {Pane} from 'tweakpane'
+
+    const regl = createRegl()
+    let state = 0
+    
+    //setup the tweakpane
+    const pane = new Pane();
+    const PARAMS = {
+      speed: 5,
+      tolerance: 1.5,
+      colorStart: '#ff0029',
+      colorEnd: '#06df4a',
+    };
+
+    pane.addInput(PARAMS, 'speed', {
+      min: 0,
+      max: 10,
+    });
+    pane.addInput(PARAMS, 'tolerance', {
+      min: 0,
+      max: 3,
+    });
+    pane.addInput(PARAMS, 'colorStart');
+    pane.addInput(PARAMS, 'colorEnd');
+    //end tweekpane setup
+
+    function getVideo() {
+      const videoEl = document.createElement('video');
+      // videoEl.width = videoEl.height = 512 
+
+      // request video stream
+      navigator.mediaDevices.getUserMedia({
+        video:true
+      }).then( stream => {
+        videoEl.srcObject = stream
+        
+        // wait until video plays to init / run regl
+        // otherwise it throws an error
+        videoEl.play().then( ()=> {
+          init()
+          run()
+        })
+      })
+      return videoEl
+    }
+    function hexToRgb(hex) {
+      let r = 0, g = 0, b = 0
+
+      r = "0x" + hex[1] + hex[2];
+      g = "0x" + hex[3] + hex[4];
+      b = "0x" + hex[5] + hex[6];
+      
+      r = r / 255.
+      g = g / 255.
+      b = b / 255.
+      r.toFixed(4)
+      g.toFixed(4)
+      b.toFixed(4)
+      return [r,g,b];
+    }
+    
+    const gifEl = document.createElement('gif');
+    gifEl.src = 'stick-figure-dancing.gif';
+    const video = getVideo()
+    let drawTriangle
+
+    const init = function() {
+      drawTriangle = regl({
+        frag, vert,
+
+        attributes: {
+          position: regl.buffer([
+            [-1,-1],  // no need to flatten nested arrays, regl automatically
+            [-1, 1],  // unrolls them into a typedarray (default Float32)
+            [1,  1],
+            [1, -1],
+            [1,  1],
+            [-1,-1]
+           ])
+        },
+
+        uniforms: {
+          time:             regl.context('time'),
+          resolution:       [regl.context('drawingBufferWidth'), regl.context('drawingBufferHeight')],
+          texture:          regl.prop('video'),
+          textureSize:      function () {return [video.videoHeight, video.videoWidth]},
+          speed:            function () {return PARAMS.speed},
+          tolerance:        function () {return PARAMS.tolerance},
+          colorStart:       function () {return hexToRgb(PARAMS.colorStart)},
+          colorEnd:         function () {return hexToRgb(PARAMS.colorEnd)},
+        },
+
+        count: 6
+      })
+    }
+
+    const run = function() {
+      regl.frame( args => {
+        drawTriangle({ video: regl.texture( video ) })
+      })
+    }
+  </script>
+</html>
